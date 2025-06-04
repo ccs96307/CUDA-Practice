@@ -39,36 +39,45 @@ __global__ void withPaddingKernel(float *out) {
 }
 
 
+static void checkCudaError(cudaError_t err, const char *msg) {
+    if (err != cudaSuccess) {
+        fprintf(stderr, "CUDA Error: %s: %s\n", msg, cudaGetErrorString(err));
+        exit(EXIT_FAILURE);
+    }
+}
+
+
 void benchmark(void (*kernel)(float*), float* d_out, const char* name) {
     cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
+    checkCudaError(cudaEventCreate(&start), "cudaEventCreate start");
+    checkCudaError(cudaEventCreate(&stop), "cudaEventCreate stop");
 
     dim3 block(N, N);
     dim3 grid(1, 1);
 
-    cudaEventRecord(start);
+    checkCudaError(cudaEventRecord(start), "cudaEventRecord start");
     kernel<<<grid, block>>>(d_out);
-    cudaEventRecord(stop);
+    checkCudaError(cudaEventRecord(stop), "cudaEventRecord stop");
 
-    cudaEventSynchronize(stop);
+    checkCudaError(cudaEventSynchronize(stop), "cudaEventSynchronize stop");
     float ms = 0;
-    cudaEventElapsedTime(&ms, start, stop);
+    checkCudaError(cudaEventElapsedTime(&ms, start, stop), "cudaEventElapsedTime: stop - start and assign to `ms`");
     std::cout << name << " time: " << ms << " ms\n";
 
-    cudaEventDestroy(start);
-    cudaEventDestroy(stop);
+    checkCudaError(cudaEventDestroy(start), "cudaEventDestroy start");
+    checkCudaError(cudaEventDestroy(stop), "cudaEventDestroy stop");
 }
 
 
 int main() {
     float *d_out;
-    cudaMalloc(&d_out, sizeof(float) * N * N);
+    checkCudaError(cudaMalloc(&d_out, sizeof(float) * N * N), "cudaMalloc d_out");
 
+    benchmark(withPaddingKernel, d_out, "With Padding");
     benchmark(withoutPaddingKernel, d_out, "Without Padding");
     benchmark(withPaddingKernel, d_out, "With Padding");
-    
-    cudaFree(d_out);
+
+    checkCudaError(cudaFree(d_out), "cudaFree d_out");
 
     return 0;
 }
