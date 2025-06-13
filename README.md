@@ -6,3 +6,7 @@
 - 0.4 CUDA Execution and Synchronization Mechanisms
 - 0.5 Core Development Tools: Introduction to NVCC and Profiling Tools
 - 0.6 CUDA Error Handling and Debugging Techniques
+
+---
+
+## 1. 
