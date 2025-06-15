@@ -25,8 +25,8 @@ static void checkCudaError(cudaError_t err, const char *msg) {
 
 
 int main() {
-    int width = 81920;
-    int height = 81920;
+    int width = 10240;
+    int height = 10240;
     int size = width * height * sizeof(float);
 
     float *h_in, *h_out;
