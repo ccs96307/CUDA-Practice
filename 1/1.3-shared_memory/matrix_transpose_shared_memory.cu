@@ -6,7 +6,7 @@
 
 __global__ void transposeSharedMemoryKernel(float *in, float *out, int width, int height) {
     // Init shared memory
-    __shared__ float tile[TILE_DIM][TILE_DIM+1]; // Avoid bank conflict
+    __shared__ float tile[TILE_DIM][TILE_DIM]; // Avoid bank conflict
     
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -35,8 +35,8 @@ static void checkCudaError(cudaError_t err, const char *msg) {
 
 
 int main() {
-    int width = 8192;
-    int height = 8192;
+    int width = 81920;
+    int height = 81920;
     int size = width * height * sizeof(float);
 
     float *h_in, *h_out;
