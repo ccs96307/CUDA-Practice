@@ -11,8 +11,8 @@ __global__ void transposeSharedMemoryKernel(float *in, float *out, int width, in
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    int global_out_x = blockIdx.y * blockDim.y + threadIdx.x;
-    int global_out_y = blockIdx.x * blockDim.x + threadIdx.y;
+    int transpose_x = blockIdx.y * blockDim.y + threadIdx.x;
+    int transpose_y = blockIdx.x * blockDim.x + threadIdx.y;
     
     if (x < width && y < height) {
         tile[threadIdx.y][threadIdx.x] = in[y * width + x];
@@ -20,8 +20,8 @@ __global__ void transposeSharedMemoryKernel(float *in, float *out, int width, in
 
     __syncthreads();
 
-    if (global_out_x < height && global_out_y < width) {
-        out[global_out_y * height + global_out_x] = tile[threadIdx.x][threadIdx.y];
+    if (transpose_x < height && transpose_y < width) {
+        out[transpose_y * height + transpose_x] = tile[threadIdx.x][threadIdx.y];
     }
 }
 
@@ -92,21 +92,21 @@ int main() {
     // Copy data from device to host
     checkCudaError(cudaMemcpy(h_out, d_out, size, cudaMemcpyDeviceToHost), "cudaMemcpy d_out => h_out");
 
-    // std::cout << "Original matrix (top-left corner):" << std::endl;
-    // for (int i = 0; i < 5; ++i) {
-    //     for (int j = 0; j < 5; ++j) {
-    //         std::cout << h_in[i * width + j] << "\t";
-    //     }
-    //     std::cout << std::endl;
-    // }
+    std::cout << "Original matrix (top-left corner):" << std::endl;
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            std::cout << h_in[i * width + j] << "\t";
+        }
+        std::cout << std::endl;
+    }
     
-    // std::cout << "\nTransposed matrix (top-left corner):" << std::endl;
-    // for (int i = 0; i < 5; ++i) {
-    //     for (int j = 0; j < 5; ++j) {
-    //         std::cout << h_out[i * height + j] << "\t";
-    //     }
-    //     std::cout << std::endl;
-    // }
+    std::cout << "\nTransposed matrix (top-left corner):" << std::endl;
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            std::cout << h_out[i * height + j] << "\t";
+        }
+        std::cout << std::endl;
+    }
 
     return 0;
 }
