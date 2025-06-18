@@ -3,8 +3,8 @@
 #include<cuda_runtime.h>
 
 #define NUM_THREADS 256
-#define B 1024
-#define H 256
+#define B 16384
+#define H 4096
 
 // x_i = (x1, x2, ..., xn)
 // x_i = (xi - mean) / sqrt(var^2 + eps)
